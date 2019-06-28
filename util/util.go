@@ -3,31 +3,23 @@ package util
 import (
 	"context"
 	"fmt"
-	"github.com/mchirico/tlib/util"
-	"log"
-	"time"
-
 	"github.com/fsnotify/fsnotify"
+	"log"
 )
 
-func Wrapper() {
-	ctx, cancel := context.WithTimeout(context.Background(),
-		time.Duration(5*time.Second))
-	defer cancel()
+func NewWatcher(ctx context.Context, pwd string, fn func(v string)) {
 
 	c := make(chan string)
 
-	go ExampleNewWatcher(ctx, util.PWD(), c)
-	time.Sleep(1 * time.Second)
-
-	util.WriteString("test", "data", 0644)
+	go newWatcher(ctx, pwd, c)
 
 	for {
 
 		select {
 
 		case v, ok := <-c:
-			fmt.Printf("tmp: %v, %v\n", v, ok)
+			fn(v)
+
 			if !ok {
 				fmt.Printf("Channel closed\n")
 				return
@@ -37,7 +29,7 @@ func Wrapper() {
 	}
 }
 
-func ExampleNewWatcher(ctx context.Context, dir string, c chan string) {
+func newWatcher(ctx context.Context, dir string, c chan string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
