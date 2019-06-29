@@ -1,0 +1,74 @@
+
+resources:
+
+- name: watchdog
+  type: git
+  source:
+    uri: https://github.com/mchirico/watchdog.git
+    branch: master
+
+- name: watchdog-docker-image
+  type: docker-image
+  source:
+    email: ((docker-hub-email))
+    username: ((docker-hub-username))
+    password: ((docker-hub-password))
+    repository: ((docker-hub-username))/cde
+
+###############################################################################
+
+jobs:
+
+- name: unit
+  plan:
+  - get: watchdog
+    trigger: true
+  - task: unit
+    file: watchdog/ci/unit-task.yml
+
+- name: build
+  plan:
+  - get: watchdog
+    trigger: true
+    passed: [unit]
+  - task: build
+    file: watchdog/ci/build-task.yml
+
+- name: inform
+  plan:
+  - get: watchdog
+    trigger: true
+    passed: [build]
+  - task: inform
+    file: watchdog/ci/inform-task.yml
+
+- name: docker
+  plan:
+  - get: watchdog
+    trigger: true
+    passed: [inform]
+  - task: docker
+    file: watchdog/ci/docker-task.yml
+
+- name: publish
+  plan:
+  - get: watchdog
+    trigger: true
+    passed: [docker]
+  - put: watchdog-docker-image
+    params:
+      build: watchdog/ci/docker
+  - task: run
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: ((docker-hub-username))/watchdog
+      run:
+        path: /bin/hello-world
+        args: []
+      params:
+        NAME: ((docker-hub-username))
+
+

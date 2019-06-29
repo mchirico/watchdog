@@ -5,7 +5,20 @@ import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"log"
+	"strings"
 )
+
+func Monitor(ctx context.Context, pwd string, event string, fn func(string)) {
+
+	pipeline := Watcher(ctx, pwd)
+	for p := range pipeline {
+
+		if strings.Contains(p, event) {
+			fn(p)
+		}
+
+	}
+}
 
 func Watcher(ctx context.Context, dir string) <-chan string {
 	watcher, err := fsnotify.NewWatcher()
@@ -32,7 +45,7 @@ func Watcher(ctx context.Context, dir string) <-chan string {
 				}
 				msg := fmt.Sprintf("event: %s", event)
 				if event.Op&fsnotify.Write == fsnotify.Write {
-					msg = fmt.Sprintf("%s modified file: %s\n", msg, event.Name)
+					msg = fmt.Sprintf("%s\nmodified file: %s\n", msg, event.Name)
 
 				}
 				watchResult <- msg
