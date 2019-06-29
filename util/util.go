@@ -9,44 +9,38 @@ import (
 
 func NewWatcher(ctx context.Context, pwd string, fn func(v string)) {
 
-	c := make(chan string)
 
-	go newWatcher(ctx, pwd, c)
-
-	for {
-
-		select {
-
-		case v, ok := <-c:
-			fn(v)
-
-			if !ok {
-				fmt.Printf("Channel closed\n")
-				return
-			}
-
-		}
+	pipeline := newWatcher(ctx, pwd)
+	for p := range pipeline {
+		fn(p)
 	}
+
+
 }
 
-func newWatcher(ctx context.Context, dir string, c chan string) {
+func newWatcher(ctx context.Context, dir string) <-chan string {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer watcher.Close()
 
-	cWatcherExit := make(chan string)
+
+
+	err = watcher.Add(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	watchResult := make(chan string)
 
 	go func() {
-
-		defer close(c)
-		defer close(cWatcherExit)
+		defer watcher.Close()
+		defer close(watchResult)
 		for {
 			select {
 			case event, ok := <-watcher.Events:
 				if !ok {
-					c <- "!ok"
+					watchResult <- "!ok"
 					return
 				}
 				msg := fmt.Sprintf("event: %s", event)
@@ -54,26 +48,21 @@ func newWatcher(ctx context.Context, dir string, c chan string) {
 					msg = fmt.Sprintf("%s modified file: %s\n", msg, event.Name)
 
 				}
-				c <- msg
+				watchResult <- msg
 			case err, ok := <-watcher.Errors:
 				if !ok {
-					c <- "Watcher Error: "
+					watchResult <- "Watcher Error: "
 					return
 				}
-				c <- "error"
-				log.Println("error:", err)
+				watchResult <- fmt.Sprintf("err: %s\n",err)
 
 			case <-ctx.Done():
-				c <- "ctx Done "
 				return
 			}
 		}
 	}()
 
-	err = watcher.Add(dir)
-	if err != nil {
-		log.Fatal(err)
-	}
 
-	<-cWatcherExit
+
+	return watchResult
 }
