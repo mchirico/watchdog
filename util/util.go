@@ -7,24 +7,11 @@ import (
 	"log"
 )
 
-func NewWatcher(ctx context.Context, pwd string, fn func(v string)) {
-
-
-	pipeline := newWatcher(ctx, pwd)
-	for p := range pipeline {
-		fn(p)
-	}
-
-
-}
-
-func newWatcher(ctx context.Context, dir string) <-chan string {
+func Watcher(ctx context.Context, dir string) <-chan string {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-
 
 	err = watcher.Add(dir)
 	if err != nil {
@@ -54,15 +41,13 @@ func newWatcher(ctx context.Context, dir string) <-chan string {
 					watchResult <- "Watcher Error: "
 					return
 				}
-				watchResult <- fmt.Sprintf("err: %s\n",err)
+				watchResult <- fmt.Sprintf("err: %s\n", err)
 
 			case <-ctx.Done():
 				return
 			}
 		}
 	}()
-
-
 
 	return watchResult
 }
