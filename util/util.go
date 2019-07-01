@@ -8,13 +8,15 @@ import (
 	"strings"
 )
 
-func Monitor(ctx context.Context, pwd string, event string, fn func(string)) {
+func Monitor(ctx context.Context, pwd string, event []string, fn func(string)) {
 
 	pipeline := Watcher(ctx, pwd)
 	for p := range pipeline {
 
-		if strings.Contains(p, event) {
-			fn(p)
+		for _,e := range event {
+			if strings.Contains(p, e) {
+				fn(p)
+			}
 		}
 
 	}

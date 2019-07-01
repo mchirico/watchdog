@@ -121,10 +121,10 @@ func TestMonitor(t *testing.T) {
 
 	f := F{}
 
-	num := 100
+	num := 10
 	go Write(num)
 
-	Monitor(ctx, util.PWD(), "CHMOD", f.Fn)
+	Monitor(ctx, util.PWD(), []string{"CHMOD","WRITE"}, f.Fn)
 
 	fmt.Printf("f.GetCount: %d\n", f.GetCount())
 
@@ -142,7 +142,7 @@ func TestMonitorRead(t *testing.T) {
 	num := 10
 	go WriteAppend(num)
 
-	Monitor(ctx, util.PWD(), "CHMOD", f.Read)
+	Monitor(ctx, util.PWD(), []string{"CHMOD","WRITE"}, f.Read)
 
 	fmt.Printf("f.GetCount: %d\n", f.GetCount())
 
