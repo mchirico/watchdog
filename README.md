@@ -2,6 +2,7 @@
 
 
 [![Build Status](https://travis-ci.org/mchirico/watchdog.svg?branch=master)](https://travis-ci.org/mchirico/watchdog)
+[![Build Status](https://mchirico.visualstudio.com/watchdog/_apis/build/status/mchirico.watchdog?branchName=master)](https://mchirico.visualstudio.com/watchdog/_build/latest?definitionId=1&branchName=master)
 [![codecov](https://codecov.io/gh/mchirico/watchdog/branch/master/graph/badge.svg)](https://codecov.io/gh/mchirico/watchdog)
 # watchdog
 
