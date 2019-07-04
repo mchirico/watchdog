@@ -38,8 +38,9 @@ steps:
   displayName: 'Build'
 
 - script: |
+    set -e
     go test -race -coverprofile=coverage.txt -covermode=atomic ./...
-    if [[ -f coverage.txt ]]; then bash <(curl -s https://codecov.io/bash); fi
+    if [[ -s coverage.txt ]]; then bash <(curl -s https://codecov.io/bash); fi
   env:
     MONGO_DATABASE: $(MONGO_DATABASE)
     MONGO_CONNECTION_STRING: $(MONGO_CONNECTION_STRING)
