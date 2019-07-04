@@ -33,7 +33,7 @@ matrix:
         - gocov test ./... > cc.out
       after_success:
         - cp c.out coverage.txt
-        - bash <(curl -s https://codecov.io/bash)
-        - "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"
+        - # bash <(curl -s https://codecov.io/bash)
+        - # "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"
 
 

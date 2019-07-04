@@ -39,10 +39,11 @@ steps:
 
 - script: |
     go test -race -coverprofile=coverage.txt -covermode=atomic ./...
-    if [[ -f coverage.txt ]]; then echo "coverage.txt exist"; fi
+    if [[ -f coverage.txt ]]; then bash <(curl -s https://codecov.io/bash); fi
   env:
     MONGO_DATABASE: $(MONGO_DATABASE)
-    MONGO_CONNECTION_STRING: $(MONGO_CONNECTION_STRING)    
+    MONGO_CONNECTION_STRING: $(MONGO_CONNECTION_STRING)
+    CODECOV_TOKEN: $(CODECOV_TOKEN)
   workingDirectory: '$(modulePath)'
   displayName: 'Run tests'
 
